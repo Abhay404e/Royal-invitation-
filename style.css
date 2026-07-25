@@ -23,9 +23,9 @@
   --glass-border: rgba(240, 223, 168, 0.16);
 
   /* ---------- Type ---------- */
---font-display: 'Rajdhani', sans-serif;
---font-script: 'Rajdhani', sans-serif;
---font-body: 'Rajdhani', sans-serif;
+--font-display: 'Modak', cursive;
+--font-script: 'Modak', cursive;
+--font-body: 'Modak', cursive;
   /* ---------- Layout ---------- */
   --header-h: 84px;
   --container: 1180px;

@@ -444,12 +444,14 @@ body::before {
 
 .hero-names {
   font-size: clamp(3.2rem, 15vw, 7rem);
-  line-height: 1;
+  line-height: 1.25;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.35em;
   flex-wrap: wrap;
+  padding: 0.15em 0;
+  overflow: visible;
   background: linear-gradient(120deg, var(--gold-light) 20%, var(--gold) 45%, var(--gold-light) 70%);
   background-size: 220% auto;
   -webkit-background-clip: text;

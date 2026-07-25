@@ -5,6 +5,13 @@
    with a geometric sans for UI precision.
 ================================================================= */
 
+@font-face {
+    font-family: 'Khand';
+    src: url('fonts/Khand-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
 :root {
   /* ---------- Colour ---------- */
   --ink:          #0c0710;
@@ -23,9 +30,9 @@
   --glass-border: rgba(240, 223, 168, 0.16);
 
   /* ---------- Type ---------- */
---font-display: 'Modak', cursive;
---font-script: 'Modak', cursive;
---font-body: 'Modak', cursive;
+--font-display: 'Khand', sans-serif;
+--font-script: 'Khand', sans-serif;
+--font-body: 'Khand', sans-serif;
   /* ---------- Layout ---------- */
   --header-h: 84px;
   --container: 1180px;

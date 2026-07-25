@@ -20,14 +20,34 @@
 <body>
 
 <!-- ============================================================
-     LOADING SCREEN
-     A gold mandala draws itself while the page assembles.
+     LOADING SCREEN + PALACE GATE ENTRANCE
+     1. A gold mandala draws itself while a progress line fills.
+     2. A wax seal appears — tapping it is the user gesture that
+        both unlocks audio autoplay and triggers the gate swing.
+     3. Two ornate gate panels (built by script.js) swing open on
+        a 3D hinge to reveal the invitation underneath.
 ============================================================= -->
 <div id="loader" aria-hidden="true">
-  <div class="loader-inner">
+
+  <div class="loader-stage" id="loaderStage">
     <svg id="loaderMandala" class="mandala mandala--loader" viewBox="0 0 200 200"></svg>
     <p class="loader-monogram">M <span>&amp;</span> A</p>
+    <p class="loader-status">Preparing the celebration&hellip; <span id="loaderPercent">0%</span></p>
     <div class="loader-bar"><span id="loaderProgress"></span></div>
+  </div>
+
+  <button class="loader-seal" id="loaderSeal" type="button" hidden>
+    <span class="loader-seal-mono">M&amp;A</span>
+    <span class="loader-seal-label">Tap to Enter</span>
+  </button>
+
+  <div class="gate-wrap" id="gateWrap">
+    <div class="gate gate-left">
+      <svg class="gate-svg" id="gateLeft" viewBox="0 0 200 400" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="gate gate-right">
+      <svg class="gate-svg" id="gateRight" viewBox="0 0 200 400" preserveAspectRatio="none"></svg>
+    </div>
   </div>
 </div>
 
@@ -373,5 +393,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="script.js"></script>
 </body>
-  </html>
-  
+             </html>
+         

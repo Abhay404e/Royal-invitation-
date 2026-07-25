@@ -23,9 +23,9 @@
   --glass-border: rgba(240, 223, 168, 0.16);
 
   /* ---------- Type ---------- */
-  --font-display: 'Cormorant Garamond', serif;
-  --font-script:  'Parisienne', cursive;
-  --font-body:    'Jost', sans-serif;
+--font-display: 'Tiro Devanagari Marathi', serif;
+--font-script:  'Tiro Devanagari Marathi', serif;
+--font-body:    'Jost', sans-serif;
 
   /* ---------- Layout ---------- */
   --header-h: 84px;

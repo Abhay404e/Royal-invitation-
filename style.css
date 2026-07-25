@@ -23,10 +23,9 @@
   --glass-border: rgba(240, 223, 168, 0.16);
 
   /* ---------- Type ---------- */
---font-display: 'Tiro Devanagari Marathi', serif;
---font-script:  'Tiro Devanagari Marathi', serif;
---font-body:    'Jost', sans-serif;
-
+--font-display: 'Rajdhani', sans-serif;
+--font-script: 'Rajdhani', sans-serif;
+--font-body: 'Rajdhani', sans-serif;
   /* ---------- Layout ---------- */
   --header-h: 84px;
   --container: 1180px;

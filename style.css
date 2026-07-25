@@ -159,21 +159,28 @@ body::before {
 [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
 
 /* ================================================================
-   LOADER
+   LOADER + PALACE GATE ENTRANCE
 ================================================================= */
 #loader {
   position: fixed;
   inset: 0;
   z-index: 999;
   background: var(--ink-deep);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   transition: opacity 0.9s var(--ease), visibility 0.9s var(--ease);
 }
 #loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.loader-inner { text-align: center; }
+/* ---------- Stage 1: progress ---------- */
+.loader-stage {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 3;
+  transition: opacity 0.5s var(--ease);
+}
+.loader-stage.is-hidden { opacity: 0; pointer-events: none; }
 
 .mandala--loader { width: 128px; height: 128px; margin-bottom: 18px; }
 
@@ -181,9 +188,17 @@ body::before {
   font-family: var(--font-script);
   font-size: 2rem;
   color: var(--gold-light);
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 .loader-monogram span { color: var(--ivory-dim); font-family: var(--font-display); font-size: 1.3rem; }
+
+.loader-status {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  margin-bottom: 14px;
+}
 
 .loader-bar {
   width: 160px;
@@ -197,7 +212,88 @@ body::before {
   height: 100%;
   width: 0%;
   background: var(--gold-light);
+  transition: width 0.2s linear;
 }
+
+/* ---------- Stage 2: the wax seal (tap to enter) ---------- */
+.loader-seal {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  z-index: 4;
+  width: 116px; height: 116px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: radial-gradient(circle at 34% 30%, var(--gold-light), var(--gold) 62%, #7d5c1f 100%);
+  box-shadow: 0 0 0 6px rgba(201, 162, 75, 0.16), 0 22px 44px -12px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+.loader-seal[hidden] { display: none; }
+.loader-seal.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  animation: sealPulse 2.6s ease-in-out infinite;
+}
+@keyframes sealPulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(201, 162, 75, 0.16), 0 22px 44px -12px rgba(0, 0, 0, 0.65); }
+  50%      { box-shadow: 0 0 0 13px rgba(201, 162, 75, 0.05), 0 22px 52px -6px rgba(0, 0, 0, 0.7); }
+}
+.loader-seal-mono {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-deep);
+}
+.loader-seal-label {
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-deep);
+  opacity: 0.75;
+}
+
+/* ---------- Stage 3: the gate panels ---------- */
+.gate-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  perspective: 1700px;
+}
+.gate {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  transition: transform 1.4s var(--ease), opacity 1.1s var(--ease) 0.25s;
+}
+.gate-left {
+  transform-origin: left center;
+  background: linear-gradient(115deg, var(--maroon-deep), var(--ink-deep) 82%);
+  border-right: 1px solid var(--gold-soft);
+}
+.gate-right {
+  transform-origin: right center;
+  background: linear-gradient(245deg, var(--maroon-deep), var(--ink-deep) 82%);
+  border-left: 1px solid var(--gold-soft);
+}
+.gate-svg { width: 100%; height: 100%; display: block; fill: none; }
+.gate-svg .frame  { stroke: var(--gold); stroke-width: 1.5; }
+.gate-svg .seam   { stroke: var(--gold-light); stroke-width: 2; }
+.gate-svg .arch-a { stroke: var(--gold-light); stroke-width: 1.4; }
+.gate-svg .arch-b { stroke: var(--gold); stroke-width: 1; }
+.gate-svg .dome   { stroke: var(--gold-light); stroke-width: 1.2; }
+.gate-svg .lattice{ stroke: var(--gold); stroke-width: 0.6; opacity: 0.55; }
+.gate-svg .accent { stroke: var(--gold-soft); stroke-width: 1; }
+
+/* Doors swing outward on their outer hinge, like real palace gates */
+.gate-wrap.is-open .gate-left  { transform: rotateY(-92deg) translateX(-3%); opacity: 0; }
+.gate-wrap.is-open .gate-right { transform: rotateY(92deg)  translateX(3%);  opacity: 0; }
 
 /* ================================================================
    MANDALA (built by script.js — petals rotated around a center)
@@ -581,95 +677,4 @@ body::before {
 /* ================================================================
    LOCATION
 ================================================================= */
-.location-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  overflow: hidden;
-  max-width: 980px;
-  margin: 0 auto;
-}
-.location-info { padding: 44px 34px; }
-.location-venue { font-family: var(--font-display); font-size: 2rem; color: var(--gold-light); margin-bottom: 10px; }
-.location-address { font-size: 0.92rem; color: var(--ivory-dim); margin-bottom: 14px; }
-.location-note { font-size: 0.85rem; line-height: 1.6; color: var(--ivory-dim); margin-bottom: 26px; }
-.location-map { min-height: 280px; }
-.location-map iframe { width: 100%; height: 100%; min-height: 280px; border: 0; filter: grayscale(0.15) contrast(1.05); }
-
-/* ================================================================
-   RSVP
-================================================================= */
-.rsvp-sub { text-align: center; margin-top: -34px; margin-bottom: 46px; font-size: 0.85rem; color: var(--ivory-dim); }
-
-.rsvp-wrap { max-width: 560px; margin: 0 auto; padding: 44px 32px; position: relative; }
-
-.rsvp-form { display: flex; flex-direction: column; gap: 26px; }
-
-.field { position: relative; }
-.field input[type="text"],
-.field select,
-.field textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--glass-border);
-  padding: 10px 2px;
-  color: var(--ivory);
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.3s ease;
-  appearance: none;
-  -webkit-appearance: none;
-  border-radius: 0;
-}
-.field select { cursor: pointer; }
-.field textarea { resize: vertical; min-height: 60px; }
-
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold-light); }
-
-.field label {
-  position: absolute;
-  left: 2px; top: 10px;
-  font-size: 1rem;
-  color: var(--ivory-dim);
-  pointer-events: none;
-  transition: transform 0.25s var(--ease), font-size 0.25s var(--ease), color 0.25s var(--ease);
-  transform-origin: left top;
-}
-
-.field input:focus + label,
-.field input:not(:placeholder-shown) + label,
-.field textarea:focus + label,
-.field textarea:not(:placeholder-shown) + label,
-.field select:focus + label,
-.field select:valid + label {
-  transform: translateY(-20px);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  color: var(--gold-light);
-}
-
-/* Select always shows label raised since it can't use :placeholder-shown */
-.field select + label { transform: translateY(-20px); font-size: 0.68rem; letter-spacing: 0.1em; color: var(--gold-light); }
-
-.field-toggle { border: none; padding: 0; }
-.field-toggle legend {
-  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 12px; padding: 0;
-}
-.toggle-group { display: flex; gap: 10px; flex-wrap: wrap; }
-.toggle-group input { position: absolute; opacity: 0; pointer-events: none; }
-.toggle-group label {
-  padding: 10px 18px;
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  color: var(--ivory-dim);
-  cursor: pointer;
-  transition: all 0.3s var(--ease);
-}
-.toggle-group input:checked + label {
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
-  color: var(--ink-deep);
-  border-color: transparent;
-}
-
-#mealField { transitio
+.location-card 

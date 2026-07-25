@@ -52,35 +52,130 @@ $$('.mandala').forEach((svg) => {
 });
 
 /* =================================================================
-   2. LOADING SCREEN
-   Fake a brief, elegant progress fill, then reveal the page and
-   play the hero entrance.
+   1B. PALACE GATE GENERATOR
+   Draws one ornate gate half (frame, arch line-work, a small dome
+   finial, and a jali lattice grid) into a 200x400 viewBox. Colour
+   comes entirely from the CSS classes in style.css. The right panel
+   reuses the exact same drawing code, mirrored with a transform, so
+   the two halves meet as a single arch at the centre seam.
+================================================================== */
+function drawGateHalf(target) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const w = 200, h = 400;
+  const make = (tag, attrs, cls) => {
+    const el = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    if (cls) el.setAttribute('class', cls);
+    target.appendChild(el);
+    return el;
+  };
+
+  // Outer frame
+  make('rect', { x: 6, y: 6, width: w - 12, height: h - 12 }, 'frame');
+
+  // Seam trim along the inner edge (where the two panels meet)
+  make('line', { x1: w - 4, y1: 0, x2: w - 4, y2: h }, 'seam');
+
+  // Pointed arch line-work rising toward the seam
+  make('path', { d: `M 20 96 C 20 44, ${w - 20} 44, ${w - 4} 6` }, 'arch-a');
+  make('path', { d: `M 34 98 C 34 58, ${w - 34} 58, ${w - 16} 20` }, 'arch-b');
+
+  // Small dome finial at the top of the seam
+  make('circle', { cx: w - 4, cy: 10, r: 6 }, 'dome');
+  make('path', { d: `M ${w - 10} 10 L ${w - 4} 0 L ${w + 2} 10` }, 'dome');
+
+  // Jali lattice — a grid of small diamonds across the lower body
+  const cols = 5, rows = 9;
+  const marginX = 26, marginY = 130, bottomMargin = 30;
+  const cellW = (w - marginX * 2) / cols;
+  const cellH = (h - marginY - bottomMargin) / rows;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cx = marginX + c * cellW + cellW / 2;
+      const cy = marginY + r * cellH + cellH / 2;
+      const s = Math.min(cellW, cellH) * 0.32;
+      make('path', { d: `M ${cx} ${cy - s} L ${cx + s} ${cy} L ${cx} ${cy + s} L ${cx - s} ${cy} Z` }, 'lattice');
+    }
+  }
+
+  // Accent lines bracketing the lattice block
+  make('line', { x1: marginX, y1: marginY - 6, x2: w - marginX, y2: marginY - 6 }, 'accent');
+  make('line', { x1: marginX, y1: h - bottomMargin, x2: w - marginX, y2: h - bottomMargin }, 'accent');
+}
+
+function buildGate(svg, mirror) {
+  if (!svg) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  if (!mirror) { drawGateHalf(svg); return; }
+  const g = document.createElementNS(ns, 'g');
+  g.setAttribute('transform', 'translate(200,0) scale(-1,1)');
+  svg.appendChild(g);
+  drawGateHalf(g);
+}
+
+buildGate($('#gateLeft'), false);
+buildGate($('#gateRight'), true);
+
+/* =================================================================
+   2. LOADING SCREEN → WAX SEAL → PALACE GATE ENTRANCE
+   Stage 1: a brief progress fill while the mandala draws.
+   Stage 2: a wax seal appears — the tap is a genuine user gesture,
+            which is what lets background music start (browsers
+            block audio autoplay without one).
+   Stage 3: the gate panels swing open on their outer hinges and
+            the hero entrance plays underneath.
 ================================================================== */
 function runLoader() {
-  const loader = $('#loader');
+  const stage = $('#loaderStage');
   const bar = $('#loaderProgress');
+  const percentLabel = $('#loaderPercent');
+  const seal = $('#loaderSeal');
   let progress = 0;
 
   const tick = setInterval(() => {
-    progress += Math.random() * 18 + 6;
+    progress += Math.random() * 16 + 6;
     if (progress >= 100) {
       progress = 100;
       clearInterval(tick);
-      bar.style.width = progress + '%';
+      bar.style.width = '100%';
+      percentLabel.textContent = '100%';
       setTimeout(() => {
-        loader.classList.add('is-hidden');
-        document.body.style.overflow = '';
-        playHeroEntrance();
-      }, 350);
+        stage.classList.add('is-hidden');
+        seal.hidden = false;
+        // requestAnimationFrame lets the browser register the
+        // unhide before the opacity transition starts
+        requestAnimationFrame(() => seal.classList.add('is-visible'));
+      }, 400);
       return;
     }
     bar.style.width = progress + '%';
+    percentLabel.textContent = Math.round(progress) + '%';
   }, 180);
+}
+
+function openPalaceGates() {
+  const loader = $('#loader');
+  const seal = $('#loaderSeal');
+  const gateWrap = $('#gateWrap');
+
+  seal.classList.remove('is-visible');
+  seal.disabled = true;
+  gateWrap.classList.add('is-open');
+
+  // This click is a genuine user gesture — safe to start audio here.
+  setMusicPlaying(true);
+
+  setTimeout(() => {
+    loader.classList.add('is-hidden');
+    document.body.style.overflow = '';
+    playHeroEntrance();
+  }, 1500);
 }
 
 // Lock scroll while loading
 document.body.style.overflow = 'hidden';
 window.addEventListener('load', () => setTimeout(runLoader, 300));
+$('#loaderSeal') && $('#loaderSeal').addEventListener('click', openPalaceGates);
 
 /* =================================================================
    3. HERO ENTRANCE + SCROLL REVEALS (GSAP + ScrollTrigger)
@@ -337,20 +432,23 @@ const musicToggle = $('#musicToggle');
 const bgMusic = $('#bgMusic');
 let isPlaying = false;
 
-musicToggle && musicToggle.addEventListener('click', async () => {
+async function setMusicPlaying(playing) {
   try {
-    if (isPlaying) {
-      bgMusic.pause();
-    } else {
+    if (playing) {
       await bgMusic.play();
+    } else {
+      bgMusic.pause();
     }
-    isPlaying = !isPlaying;
-    musicToggle.classList.toggle('is-playing', isPlaying);
-    musicToggle.setAttribute('aria-pressed', String(isPlaying));
-    musicToggle.setAttribute('aria-label', isPlaying ? 'Pause background music' : 'Play background music');
+    isPlaying = playing;
   } catch (err) {
-    // No audio file present, or playback was blocked — fail silently in the UI.
-    console.info('Background music unavailable — add a track at assets/music.mp3');
+    // No audio file present at assets/music.mp3, or playback was
+    // blocked — fail silently rather than breaking the UI.
+    isPlaying = false;
   }
-});
-                       
+  musicToggle.classList.toggle('is-playing', isPlaying);
+  musicToggle.setAttribute('aria-pressed', String(isPlaying));
+  musicToggle.setAttribute('aria-label', isPlaying ? 'Pause background music' : 'Play background music');
+}
+
+musicToggle && musicToggle.addEventListener('click', () => setMusicPlaying(!isPlaying));
+                
